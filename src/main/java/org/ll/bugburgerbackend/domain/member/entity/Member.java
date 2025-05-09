@@ -20,5 +20,14 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String username;
 
+    @Column(nullable = false)
+    private Integer age;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String nickname;
+
     private String password;
+
+    @Column(unique = true, length = 128)
+    private String token;
 }

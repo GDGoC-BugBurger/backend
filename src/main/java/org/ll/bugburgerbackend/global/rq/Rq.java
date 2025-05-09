@@ -3,7 +3,9 @@ package org.ll.bugburgerbackend.global.rq;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.ll.bugburgerbackend.domain.member.entity.Member;
 import org.ll.bugburgerbackend.domain.member.service.MemberService;
+import org.ll.bugburgerbackend.global.config.AppConfig;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -56,17 +58,17 @@ public class Rq {
 //                .orElse(null);
 //    }
 //
-//    public void setCookie(String name, String value) {
-//        ResponseCookie cookie = ResponseCookie.from(name, value)
-//                .path("/")
-//                .domain(AppConfig.getSiteBackUrl())
-//                .sameSite("Strict")
-//                .secure(true)
-//                .httpOnly(true)
-////                .httpOnly(false)
-//                .build();
-//        resp.addHeader("Set-Cookie", cookie.toString());
-//    }
+    public void setCookie(String name, String value) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .path("/")
+                .domain(AppConfig.getSiteBackUrl())
+                .sameSite("Strict")
+                .secure(true)
+                .httpOnly(true)
+//                .httpOnly(false)
+                .build();
+        resp.addHeader("Set-Cookie", cookie.toString());
+    }
 //
 //    public String getCookieValue(String name) {
 //        return Optional
@@ -107,10 +109,10 @@ public class Rq {
 //        setCookie("accessToken", newAccessToken);
 //    }
 //
-//    public String makeAuthCookies(Member member) {
-//        String accessToken = memberService.genAccessToken(member);
-//        setCookie("apiKey", member.getApiKey());
-//        setCookie("accessToken", accessToken);
-//        return accessToken;
-//    }
+    public String makeAuthCookies(Member member) {
+        String accessToken = memberService.genAccessToken(member);
+        setCookie("apiKey", member.getToken());
+        setCookie("accessToken", accessToken);
+        return accessToken;
+    }
 }
