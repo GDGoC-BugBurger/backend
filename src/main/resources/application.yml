@@ -17,3 +17,8 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
+
+custom:
+  site:
+    frontUrl: "http://${custom.site.cookieDomain}:5173"
+    backUrl: "http://${custom.site.cookieDomain}:${server.port}"
