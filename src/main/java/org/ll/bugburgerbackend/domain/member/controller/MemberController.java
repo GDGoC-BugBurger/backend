@@ -20,6 +20,11 @@ public class MemberController {
 
     @GetMapping("/my")
     public ResponseEntity<MemberInfoResponse> getMyInfo(@LoginUser Member loginMember) {
+
+        if (loginMember == null) {
+            return ResponseEntity.status(401).build();
+        }
+
         MemberInfoResponse memberInfoResponse = memberService.getMyInfo(loginMember);
 
         return ResponseEntity.ok(memberInfoResponse);
