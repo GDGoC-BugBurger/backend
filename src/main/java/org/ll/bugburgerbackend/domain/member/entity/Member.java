@@ -2,12 +2,16 @@ package org.ll.bugburgerbackend.domain.member.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.ll.bugburgerbackend.global.baseEntity.BaseEntity;
+import org.ll.bugburgerbackend.global.type.DementiaStage;
+import org.ll.bugburgerbackend.global.type.GenderType;
 
 @Entity
 @Setter
@@ -27,6 +31,24 @@ public class Member extends BaseEntity {
     private String nickname;
 
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private DementiaStage dementiaStage;
+
+    @Enumerated(EnumType.STRING)
+    private GenderType gender;
+
+    @Column(length = 500)
+    private String interests;
+
+    @Column(length = 500)
+    private String background;
+
+    @Column(length = 500)
+    private String family;
+
+    @Column(length = 500)
+    private String recentAnalysis;
 
     @Column(unique = true, length = 128)
     private String token;

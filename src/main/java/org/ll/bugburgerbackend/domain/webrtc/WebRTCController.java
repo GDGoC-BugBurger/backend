@@ -1,5 +1,7 @@
 package org.ll.bugburgerbackend.domain.webrtc;
 
+import org.ll.bugburgerbackend.domain.member.entity.Member;
+import org.ll.bugburgerbackend.global.webMvc.LoginUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +37,22 @@ public class WebRTCController {
     }
 
     @PostMapping(value = "/speech-to-text", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> speechToText(@RequestParam("audio") MultipartFile audioFile) throws IOException {
+    public ResponseEntity<?> speechToText(@RequestParam("audio") MultipartFile audioFile, @LoginUser Member loginMember) throws IOException {
+        if(loginMember == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+
+        geminiPrompt = String.format(
+                loginMember.getUsername(),
+                loginMember.getBirth(),
+                loginMember.getGender(),
+                loginMember.getDementiaStage(),
+                loginMember.getInterests(),
+                loginMember.getBackground(),
+                loginMember.getFamily(),
+                loginMember.getRecentAnalysis()
+        );
+
         log.info("Received audio file for speech-to-text: size={} bytes", audioFile.getSize());
         byte[] audioBytes = audioFile.getBytes();
         String audioBase64 = Base64.getEncoder().encodeToString(audioBytes);
