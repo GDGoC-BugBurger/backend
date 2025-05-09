@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.Base64;
 import java.io.IOException;
@@ -25,11 +26,23 @@ public class WebRTCController {
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
+    @Value("${gemini.api.prompt}")
+    private String geminiPrompt;
+
+    @GetMapping("/practice")
+    public String practice() {
+        return "webrtc";
+    }
+
     @PostMapping(value = "/speech-to-text", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> speechToText(@RequestParam("audio") MultipartFile audioFile) throws IOException {
         log.info("Received audio file for speech-to-text: size={} bytes", audioFile.getSize());
         byte[] audioBytes = audioFile.getBytes();
         String audioBase64 = Base64.getEncoder().encodeToString(audioBytes);
+
+        // JSON 이스케이프 처리
+        ObjectMapper mapper = new ObjectMapper();
+        String escapedPrompt = mapper.writeValueAsString(geminiPrompt);
 
         String jsonPayload = """
         {
@@ -44,13 +57,13 @@ public class WebRTCController {
                   }
                 },
                 {
-                  "text": "음성 파일을 한국어로만 인식해서 텍스트로 변환해줘. 다른 언어는 무시하고 반드시 한국어로만 변환해."
+                  "text": %s
                 }
               ]
             }
           ]
         }
-        """.formatted(audioBase64);
+        """.formatted(audioBase64, escapedPrompt);
 
         URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + geminiApiKey);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
