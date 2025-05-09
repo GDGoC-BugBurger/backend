@@ -18,6 +18,10 @@ spring:
         highlight_sql: true
         use_sql_comments: true
 
+webrtc:
+  ice-servers:
+    - urls: stun:stun.l.google.com:19302
+
 custom:
   site:
     frontUrl: "http://${custom.site.cookieDomain}:5173"
