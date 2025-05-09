@@ -4,3 +4,7 @@ spring:
     username: "${custom.secret.db.local.username}"
     password: "${custom.secret.db.local.password}"
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+custom:
+  site:
+    cookieDomain: "${custom.secret.local.cookieDomain}"
