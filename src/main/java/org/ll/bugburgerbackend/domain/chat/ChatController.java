@@ -1,4 +1,4 @@
-package org.ll.bugburgerbackend.domain.webrtc;
+package org.ll.bugburgerbackend.domain.chat;
 
 import org.ll.bugburgerbackend.domain.member.entity.Member;
 import org.ll.bugburgerbackend.global.webMvc.LoginUser;
@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.Base64;
 import java.io.IOException;
@@ -22,8 +21,8 @@ import java.util.Map;
 
 @Slf4j
 @Controller
-@RequestMapping("/api")
-public class WebRTCController {
+@RequestMapping("/api/chats")
+public class ChatController {
 
     @Value("${gemini.api.key}")
     private String geminiApiKey;
