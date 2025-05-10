@@ -39,3 +39,4 @@ out/
 application-secret.yml
 .env.local
 mysql_data_local
+src/main/resources/templates
