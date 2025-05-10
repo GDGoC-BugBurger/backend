@@ -13,6 +13,8 @@ import org.ll.bugburgerbackend.domain.member.entity.Member;
 import org.ll.bugburgerbackend.domain.member.repository.MemberRepository;
 import org.ll.bugburgerbackend.global.error.ErrorCode;
 import org.ll.bugburgerbackend.global.rq.Rq;
+import org.ll.bugburgerbackend.global.type.DementiaStage;
+import org.ll.bugburgerbackend.global.type.GenderType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,6 +76,11 @@ public class MemberService {
                 .password(passwordEncoder.encode(signUpRequest.password()))
                 .nickname(nickname)
                 .birth(signUpRequest.birth())
+                .gender(GenderType.valueOf(signUpRequest.gender()))
+                .dementiaStage(DementiaStage.valueOf(signUpRequest.dementiaStage()))
+                .interests(signUpRequest.interests())
+                .background(signUpRequest.background())
+                .family(signUpRequest.family())
                 .token(UUID.randomUUID().toString())
                 .build());
 

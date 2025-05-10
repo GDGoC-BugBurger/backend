@@ -37,9 +37,11 @@ public class Member extends BaseEntity {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private DementiaStage dementiaStage;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private GenderType gender;
 
     @Column(length = 500)
