@@ -22,6 +22,7 @@ import org.ll.bugburgerbackend.global.type.ChatType;
 @SuperBuilder
 public class Chat extends BaseEntity {
 
+    @Column(columnDefinition = "TEXT")
     private String message;
 
     @Enumerated(EnumType.STRING)
