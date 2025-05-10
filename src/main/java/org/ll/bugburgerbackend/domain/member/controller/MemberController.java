@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,12 +27,17 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
 public class MemberController {
 
     private final MemberService memberService;
+
+    @GetMapping("/")
+    public String member() {
+        return "member";
+    }
 
     @GetMapping("/my")
     public ResponseEntity<MemberInfoResponse> getMyInfo(@LoginUser Member loginMember) {
@@ -105,5 +111,15 @@ public class MemberController {
         memberService.signOut();
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
+    @GetMapping("/register")
+    public String register() {
+        return "register";
     }
 }

@@ -73,6 +73,7 @@ public class MemberService {
                 .username(username)
                 .password(passwordEncoder.encode(signUpRequest.password()))
                 .nickname(nickname)
+                .birth(signUpRequest.birth())
                 .token(UUID.randomUUID().toString())
                 .build());
 
