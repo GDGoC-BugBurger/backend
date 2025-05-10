@@ -4,11 +4,14 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.service.spi.ServiceException;
 import org.ll.bugburgerbackend.domain.member.dto.MemberInfoResponse;
+import org.ll.bugburgerbackend.domain.member.dto.MemberUpdateRequest;
+import org.ll.bugburgerbackend.domain.member.dto.MemberUpdateResponse;
 import org.ll.bugburgerbackend.domain.member.dto.SignInRequest;
 import org.ll.bugburgerbackend.domain.member.dto.SignInResponse;
 import org.ll.bugburgerbackend.domain.member.dto.SignUpRequest;
 import org.ll.bugburgerbackend.domain.member.entity.Member;
 import org.ll.bugburgerbackend.domain.member.repository.MemberRepository;
+import org.ll.bugburgerbackend.global.error.ErrorCode;
 import org.ll.bugburgerbackend.global.rq.Rq;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -79,5 +82,22 @@ public class MemberService {
 
     public void signOut() {
          authTokenService.deleteCookies();
+    }
+
+    public MemberUpdateResponse updateMyInfo(Member loginMember, MemberUpdateRequest memberUpdateRequest) {
+        Member member = memberRepository.findById(memberUpdateRequest.id()).orElseThrow(()
+                -> new EntityNotFoundException("해당 유저는 존재하지 않습니다."));
+
+        if (!loginMember.getUsername().equals(member.getUsername())) {
+            throw new ServiceException("해당 유저는 존재하지 않습니다.");
+        }
+
+        if (memberUpdateRequest.hasNickname()) {
+            member.setNickname(memberUpdateRequest.nickname());
+        }
+
+        memberRepository.save(member);
+
+        return new MemberUpdateResponse(member.getId());
     }
 }

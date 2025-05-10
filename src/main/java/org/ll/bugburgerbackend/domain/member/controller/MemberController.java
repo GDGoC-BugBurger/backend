@@ -2,6 +2,8 @@ package org.ll.bugburgerbackend.domain.member.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.ll.bugburgerbackend.domain.member.dto.MemberUpdateRequest;
+import org.ll.bugburgerbackend.domain.member.dto.MemberUpdateResponse;
 import org.ll.bugburgerbackend.domain.member.dto.SignInRequest;
 import org.ll.bugburgerbackend.domain.member.dto.SignInResponse;
 import org.ll.bugburgerbackend.domain.member.dto.SignUpRequest;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +43,18 @@ public class MemberController {
         MemberInfoResponse memberInfoResponse = memberService.getMyInfo(loginMember);
 
         return ResponseEntity.ok(memberInfoResponse);
+    }
+
+    @PatchMapping("/my")
+    public ResponseEntity<MemberUpdateResponse> updateMyInfo(@LoginUser Member loginMember,
+                                                             @Valid @RequestBody MemberUpdateRequest memberUpdateRequest) {
+        if (loginMember == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        MemberUpdateResponse memberUpdateResponse = memberService.updateMyInfo(loginMember, memberUpdateRequest);
+
+        return ResponseEntity.ok(memberUpdateResponse);
     }
 
     @GetMapping("/token/refresh")
