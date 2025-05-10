@@ -4,14 +4,18 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.ll.bugburgerbackend.domain.chat.entity.Chat;
 import org.ll.bugburgerbackend.global.baseEntity.BaseEntity;
 import org.ll.bugburgerbackend.global.type.DementiaStage;
 import org.ll.bugburgerbackend.global.type.GenderType;
+
+import java.util.List;
 
 @Entity
 @Setter
@@ -52,4 +56,7 @@ public class Member extends BaseEntity {
 
     @Column(unique = true, length = 128)
     private String token;
+
+    @OneToMany(mappedBy = "member")
+    private List<Chat> chats;
 }
