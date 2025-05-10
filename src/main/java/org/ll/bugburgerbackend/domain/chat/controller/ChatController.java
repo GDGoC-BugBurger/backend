@@ -37,8 +37,8 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    @GetMapping("/chat")
-    public String practice() {
+    @GetMapping("/")
+    public String chat() {
         return "chat";
     }
 
