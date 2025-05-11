@@ -21,6 +21,11 @@ spring:
     compose:
       enabled: false
 
+logging:
+  level:
+    org.ll.bugburgerbackend.global.filter: DEBUG
+    org.springframework.security: DEBUG
+
 webrtc:
   ice-servers:
     - urls: stun:stun.l.google.com:19302
