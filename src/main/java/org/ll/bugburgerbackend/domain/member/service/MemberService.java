@@ -52,7 +52,7 @@ public class MemberService {
         Member member = memberRepository.findByUsername(signInRequest.username())
                 .orElseThrow(() -> new EntityNotFoundException("해당 유저는 존재하지 않습니다."));
 
-        if (passwordEncoder.matches(member.getPassword(), signInRequest.password()))
+        if (!passwordEncoder.matches(signInRequest.password(), member.getPassword()))
             throw new ServiceException("비밀번호가 일치하지 않습니다.");
 
         String token = rq.makeAuthCookies(member);
