@@ -81,6 +81,10 @@ public class MemberService {
                 .interests(signUpRequest.interests())
                 .background(signUpRequest.background())
                 .family(signUpRequest.family())
+                .caregiverName(signUpRequest.caregiverName())
+                .caregiverPhone(signUpRequest.caregiverPhone())
+                .patientPhone(signUpRequest.patientPhone())
+                .caregiverEmail(signUpRequest.caregiverEmail())
                 .token(UUID.randomUUID().toString())
                 .build());
 
@@ -102,6 +106,22 @@ public class MemberService {
 
         if (memberUpdateRequest.hasNickname()) {
             member.setNickname(memberUpdateRequest.nickname());
+        }
+        
+        if (memberUpdateRequest.hasCaregiverName()) {
+            member.setCaregiverName(memberUpdateRequest.caregiverName());
+        }
+        
+        if (memberUpdateRequest.hasCaregiverPhone()) {
+            member.setCaregiverPhone(memberUpdateRequest.caregiverPhone());
+        }
+        
+        if (memberUpdateRequest.hasPatientPhone()) {
+            member.setPatientPhone(memberUpdateRequest.patientPhone());
+        }
+        
+        if (memberUpdateRequest.hasCaregiverEmail()) {
+            member.setCaregiverEmail(memberUpdateRequest.caregiverEmail());
         }
 
         memberRepository.save(member);

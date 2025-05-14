@@ -13,6 +13,10 @@ public record SignUpRequest(
         @NotBlank String dementiaStage,
         String interests,
         String background,
-        String family
+        String family,
+        String caregiverName,
+        String caregiverPhone,
+        String patientPhone,
+        String caregiverEmail
 ) {
 }

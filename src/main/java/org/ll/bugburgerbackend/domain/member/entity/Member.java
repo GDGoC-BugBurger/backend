@@ -56,9 +56,28 @@ public class Member extends BaseEntity {
     @Column(length = 500)
     private String recentAnalysis;
 
+    @Column(length = 500)
+    private String address;
+    
+    @Column(length = 50)
+    private String caregiverName; 
+
+    @Column(length = 20)
+    private String caregiverPhone;
+
+    @Column(length = 20)
+    private String patientPhone;  
+
+    @Column(length = 100)
+    private String caregiverEmail;
+
     @Column(unique = true, length = 128)
     private String token;
 
     @OneToMany(mappedBy = "member")
     private List<Chat> chats;
+    
+    public void updateToken(String newToken) {
+        this.token = newToken;
+    }
 }
