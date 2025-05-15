@@ -80,12 +80,44 @@ jobs:
           working-directory: /
           comment: Deploy
           command: |
-            mkdir -p /dockerProjects/gdgoc-bugburger
-            curl -o /dockerProjects/gdgoc-bugburger/zero_downtime_deploy.py https://raw.githubusercontent.com/whqtker/bb-backend/main/infraScript/zero_downtime_deploy.py
-            chmod +x /dockerProjects/gdgoc-bugburger/zero_downtime_deploy.py
-            python3 /dockerProjects/gdgoc-bugburger/zero_downtime_deploy.py
+            echo "=== Starting deployment ==="
+            
+            # 디렉토리 존재 여부 확인 및 생성 
+            sudo mkdir -p /dockerProjects || echo "Failed to create /dockerProjects directory"
+            sudo mkdir -p /dockerProjects/gdgoc-bugburger || echo "Failed to create /dockerProjects/gdgoc-bugburger directory"
+            sudo mkdir -p /dockerProjects/gdgoc-bugburger/volumes/gen || echo "Failed to create volumes directory"
+            
+            # 권한 설정
+            sudo chmod -R 755 /dockerProjects
+            
+            # 현재 디렉토리 구조 확인
+            echo "=== Directory Structure ==="
+            ls -la /dockerProjects/
+            
+            # zero_downtime_deploy.py 다운로드
+            echo "=== Downloading deployment script ==="
+            sudo curl -o /dockerProjects/gdgoc-bugburger/zero_downtime_deploy.py https://raw.githubusercontent.com/whqtker/bb-backend/main/infraScript/zero_downtime_deploy.py
+            sudo chmod +x /dockerProjects/gdgoc-bugburger/zero_downtime_deploy.py
+            
+            # 필요한 패키지 설치 확인 
+            echo "=== Checking required packages ==="
+            which socat || sudo yum install -y socat
+            which python3 || sudo yum install -y python3
+            python3 -m pip install requests || sudo pip3 install requests
+            
+            # 배포 스크립트 실행
+            echo "=== Running deployment script ==="
+            sudo python3 /dockerProjects/gdgoc-bugburger/zero_downtime_deploy.py
+            
             # 로그 파일 출력
+            echo "=== Checking deployment status ==="
             if [ -f "/dockerProjects/gdgoc-bugburger/deploy.log" ]; then
               echo "=== Deployment Log ==="
               cat /dockerProjects/gdgoc-bugburger/deploy.log
+            else
+              echo "WARNING: Deployment log file not created!"
             fi
+            
+            # 컨테이너 상태 확인
+            echo "=== Docker containers status ==="
+            docker ps -a | grep gdgoc-bugburger || echo "No gdgoc-bugburger containers running"
