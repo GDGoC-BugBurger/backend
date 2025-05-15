@@ -1,5 +1,5 @@
 # 첫 번째 스테이지: 빌드 스테이지
-FROM gradle:jdk21-graal-jammy as builder
+FROM gradle:jdk23-corretto as builder
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -7,20 +7,11 @@ WORKDIR /app
 # 소스 코드와 Gradle 래퍼 복사
 COPY gradlew .
 COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
+COPY build.gradle.kts .
+COPY settings.gradle.kts .
 
 # Gradle 래퍼에 실행 권한 부여
 RUN chmod +x ./gradlew
-
-# Switch to root to install JDK 17
-USER root
-RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk --no-install-recommends && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-# Switch back to gradle user for subsequent Gradle operations
-USER gradle
 
 # 종속성 설치
 RUN ./gradlew dependencies --no-daemon
@@ -29,7 +20,7 @@ RUN ./gradlew dependencies --no-daemon
 COPY src src
 
 # 애플리케이션 빌드
-RUN ./gradlew build --no-daemon -x test
+RUN ./gradlew build --no-daemon -x test # 테스트 코드는 실행하지 않음
 
 # 두 번째 스테이지: 실행 스테이지
 FROM ghcr.io/graalvm/jdk-community:21
