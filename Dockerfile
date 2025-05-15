@@ -1,5 +1,5 @@
 # 첫 번째 스테이지: 빌드 스테이지
-FROM gradle:jdk17-corretto as builder
+FROM gradle:jdk17-jammy as builder
 
 # 작업 디렉토리 설정
 WORKDIR /app
