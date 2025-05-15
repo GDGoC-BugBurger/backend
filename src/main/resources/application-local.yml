@@ -7,4 +7,4 @@ spring:
 
 custom:
   site:
-    cookieDomain: "${custom.secret.local.cookieDomain}"
+    cookieDomain: "${custom.secret.cookieDomain.local}"
