@@ -29,8 +29,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:3000",
-            "http://localhost:5173",
+            "http://localhost:5173", 
             "http://localhost:8080",
+            "https://bugburger.whqtker.site",
             "https://www.bugburger.whqtker.site",
             "https://api.bugburger.whqtker.site"
         ));
