@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: "${custom.secret.db.prod.url}"
+    username: "${custom.secret.db.prod.username}"
+    password: "${custom.secret.db.prod.password}"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+custom:
+  site:
+    cookieDomain: "${custom.secret.cookieDomain.prod}"
