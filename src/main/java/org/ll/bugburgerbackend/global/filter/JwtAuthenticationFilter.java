@@ -109,9 +109,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                path.startsWith("/css/") ||
                path.startsWith("/js/") ||
                path.startsWith("/images/") ||
-               path.equals("/error");
-        
+               path.equals("/error") ||
+               path.equals("/health") ||
+               path.equals("/actuator/health") ||
+               path.startsWith("/actuator/");
+    
         log.debug("Path: {}, shouldNotFilter: {}", path, shouldNotFilter);
         return shouldNotFilter;
     }
-} 
+}
