@@ -49,6 +49,7 @@ public class SecurityConfig {
                     .requestMatchers("/api/members/sign-in", "/api/members/sign-up", "/api/members/login", "/api/members/register").permitAll()
                     .requestMatchers("/", "/api/members/", "/api/members/login", "/api/members/register").permitAll()
                     .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                    .requestMatchers("/actuator/health", "/actuator/**", "/health").permitAll() // 이 줄 추가
                     .requestMatchers("/error").permitAll()
                     .anyRequest().authenticated()
             )
