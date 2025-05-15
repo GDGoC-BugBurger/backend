@@ -4,7 +4,7 @@ on:
     paths:
       - '.github/workflows/**'
       - 'src/**'
-      - 'build.gradle.kts'
+      - 'build.gradle'
       - 'Dockerfile'
       - 'README.md'
       - 'infraScript/**'
