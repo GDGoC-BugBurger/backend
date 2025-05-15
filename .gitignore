@@ -40,3 +40,8 @@ application-secret.yml
 .env.local
 mysql_data_local
 src/main/resources/templates
+/terraform/.terraform/
+/terraform/.terraform.lock.hcl
+/terraform/.terraform.tfstate.lock.info
+/terraform/terraform.tfstate
+/terraform/terraform.tfstate.backup
