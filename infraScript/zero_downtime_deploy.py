@@ -33,8 +33,8 @@ class ServiceManager:
 
     # 현재 실행 중인 서비스를 찾는 함수
     def _find_current_service(self) -> None:
-        # 현재 실행 중인 socat 프로세스 확인 명령어 개선
-        cmd: str = f"ps aux | grep 'socat -t0 TCP-LISTEN:{self.socat_port}' | grep -v grep"
+        # socat 프로세스 확인 명령어를 실제 실행되는 형태와 일치하도록 수정
+        cmd: str = f"ps aux | grep 'socat -t0 TCP-LISTEN:{self.socat_port},fork,reuseaddr' | grep -v grep"
         output = subprocess.getoutput(cmd)
         self.logger.info(f"Socat process check output: {output}")
         
@@ -42,16 +42,25 @@ class ServiceManager:
         if 'TCP:localhost:' in output:
             # 현재 사용 중인 포트 추출
             try:
-                port_part = output.split('TCP:localhost:')[1].split()[0]
+                port_part = output.split('TCP:localhost:')[1].split()[0].rstrip('&')
                 self.current_port = int(port_part)
                 self.current_name = next((name for name, port in self.services.items() if port == self.current_port), None)
                 self.logger.info(f"Found current service: {self.current_name} on port {self.current_port}")
             except (ValueError, IndexError) as e:
                 self.logger.error(f"Failed to parse port number: {e}, using default")
-                self.current_name, self.current_port = 'gdgoc-bugburger_2', self.services['gdgoc-bugburger_2']
+                # 기본값을 대체하는 방식으로 변경
+                self.current_name = 'gdgoc-bugburger_1'  # 여기서 기본값을 바꿔서 포트가 번갈아 사용되도록 함
+                self.current_port = self.services[self.current_name]
         else:
             self.logger.info("No socat process found, using default service")
-            self.current_name, self.current_port = 'gdgoc-bugburger_2', self.services['gdgoc-bugburger_2']
+            # 기본값을 번갈아 선택하기 위한 로직
+            active_containers = subprocess.getoutput("docker ps --format '{{.Names}}'")
+            if 'gdgoc-bugburger_1' in active_containers:
+                self.current_name = 'gdgoc-bugburger_1'
+            else:
+                self.current_name = 'gdgoc-bugburger_2'
+            self.current_port = self.services[self.current_name]
+            self.logger.info(f"Selected default service: {self.current_name} on port {self.current_port}")
 
     # 다음에 실행할 서비스를 찾는 함수
     def _find_next_service(self) -> None:
@@ -71,19 +80,30 @@ class ServiceManager:
             f"docker run -d --name={name} --restart unless-stopped -p {port}:8080 -e TZ=Asia/Seoul -v /dockerProjects/gdgoc-bugburger/volumes/gen:/gen --pull always ghcr.io/whqtker/gdgoc-bugburger:latest")
 
     def _switch_port(self) -> None:
-        # Socat 포트를 전환하는 함수
+        # Socat 프로세스 종료
         cmd: str = f"ps aux | grep 'socat -t0 TCP-LISTEN:{self.socat_port}' | grep -v grep | awk '{{print $2}}'"
         pid: str = subprocess.getoutput(cmd)
 
         if pid:
+            self.logger.info(f"Killing socat process {pid}")
             os.system(f"kill -9 {pid} 2>/dev/null")
+        else:
+            self.logger.info(f"No socat process found to kill")
 
         time.sleep(5)
 
-        os.system(
-            f"nohup socat -t0 TCP-LISTEN:{self.socat_port},fork,reuseaddr TCP:localhost:{self.next_port} &>/dev/null &")
+        # 새 포트 설정 및 실행 확인
+        socat_cmd = f"nohup socat -t0 TCP-LISTEN:{self.socat_port},fork,reuseaddr TCP:localhost:{self.next_port} &>/dev/null &"
+        self.logger.info(f"Starting new socat with command: {socat_cmd}")
+        os.system(socat_cmd)
+        
+        # 포트 스위칭 확인
+        time.sleep(2)
+        verify_cmd = f"ps aux | grep 'socat -t0 TCP-LISTEN:{self.socat_port}' | grep -v grep"
+        verify_output = subprocess.getoutput(verify_cmd)
+        self.logger.info(f"Socat verification: {verify_output}")
 
-        # 서비스 상태를 확인하는 함수
+    # 서비스 상태를 확인하는 함수
 
     def _is_service_up(self, port: int) -> bool:
         url = f"http://127.0.0.1:{port}/actuator/health"
