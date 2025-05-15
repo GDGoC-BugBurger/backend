@@ -33,13 +33,25 @@ class ServiceManager:
 
     # 현재 실행 중인 서비스를 찾는 함수
     def _find_current_service(self) -> None:
-        cmd: str = f"ps aux | grep 'socat -t0 TCP-LISTEN:{self.socat_port}' | grep -v grep | awk '{{print $NF}}'"
-        current_service: str = subprocess.getoutput(cmd)
-        if not current_service:
-            self.current_name, self.current_port = 'gdgoc-bugburger_2', self.services['gdgoc-bugburger_2']
+        # 현재 실행 중인 socat 프로세스 확인 명령어 개선
+        cmd: str = f"ps aux | grep 'socat -t0 TCP-LISTEN:{self.socat_port}' | grep -v grep"
+        output = subprocess.getoutput(cmd)
+        self.logger.info(f"Socat process check output: {output}")
+        
+        # 출력 결과에서 현재 포트 추출
+        if 'TCP:localhost:' in output:
+            # 현재 사용 중인 포트 추출
+            try:
+                port_part = output.split('TCP:localhost:')[1].split()[0]
+                self.current_port = int(port_part)
+                self.current_name = next((name for name, port in self.services.items() if port == self.current_port), None)
+                self.logger.info(f"Found current service: {self.current_name} on port {self.current_port}")
+            except (ValueError, IndexError) as e:
+                self.logger.error(f"Failed to parse port number: {e}, using default")
+                self.current_name, self.current_port = 'gdgoc-bugburger_2', self.services['gdgoc-bugburger_2']
         else:
-            self.current_port = int(current_service.split(':')[-1])
-            self.current_name = next((name for name, port in self.services.items() if port == self.current_port), None)
+            self.logger.info("No socat process found, using default service")
+            self.current_name, self.current_port = 'gdgoc-bugburger_2', self.services['gdgoc-bugburger_2']
 
     # 다음에 실행할 서비스를 찾는 함수
     def _find_next_service(self) -> None:
