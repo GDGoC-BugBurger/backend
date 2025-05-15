@@ -13,6 +13,15 @@ COPY settings.gradle .
 # Gradle 래퍼에 실행 권한 부여
 RUN chmod +x ./gradlew
 
+# Switch to root to install JDK 17
+USER root
+RUN apt-get update && \
+    apt-get install -y openjdk-17-jdk --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+# Switch back to gradle user for subsequent Gradle operations
+USER gradle
+
 # 종속성 설치
 RUN ./gradlew dependencies --no-daemon
 
