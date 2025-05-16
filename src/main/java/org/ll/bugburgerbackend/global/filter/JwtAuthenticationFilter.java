@@ -37,51 +37,48 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.debug("Request URI: {}", request.getRequestURI());
         log.debug("Extracted token: {}", token);
 
+        boolean authenticationProblem = false;
+        
         if (token != null) {
             try {
-                log.debug("Validating token with secret key: {}", jwtSecretKey.substring(0, 10) + "...");
-                
                 if (!Ut.jwt.isValid(jwtSecretKey, token)) {
                     log.error("Invalid JWT token");
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
-                }
-
-                Map<String, Object> payload = Ut.jwt.payload(jwtSecretKey, token);
-                log.debug("Token payload: {}", payload);
-
-                if (payload != null) {
-                    Long id = ((Number) payload.get("id")).longValue();
-                    String username = (String) payload.get("username");
-                    log.debug("Token payload - id: {}, username: {}", id, username);
-
-                    Member member = memberService.findById(id)
-                            .orElseThrow(() -> {
-                                log.error("Member not found for id: {}", id);
-                                return new RuntimeException("Member not found");
-                            });
-
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            member,
-                            null,
-                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    log.debug("Authentication set for user: {}", username);
+                    authenticationProblem = true;
                 } else {
-                    log.error("Failed to parse JWT payload");
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
+                    Map<String, Object> payload = Ut.jwt.payload(jwtSecretKey, token);
+                    
+                    if (payload != null) {
+                        Long id = ((Number) payload.get("id")).longValue();
+                        String username = (String) payload.get("username");
+                        
+                        Member member = memberService.findById(id)
+                                .orElseThrow(() -> {
+                                    log.error("Member not found for id: {}", id);
+                                    return new RuntimeException("Member not found");
+                                });
+
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                member,
+                                null,
+                                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                        );
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    } else {
+                        log.error("Failed to parse JWT payload");
+                        authenticationProblem = true;
+                    }
                 }
             } catch (Exception e) {
                 log.error("JWT token validation failed", e);
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
+                authenticationProblem = true;
             }
-        } else {
-            log.debug("No token found in request");
         }
 
+        if (authenticationProblem) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
+        
+        // Always continue the filter chain to ensure CORS headers are applied
         filterChain.doFilter(request, response);
     }
 
