@@ -96,6 +96,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
         // OPTIONS 요청 필터링 제외
         return request.getMethod().equals("OPTIONS")
                 || request.getRequestURI().startsWith("/api/v1/members/sign")

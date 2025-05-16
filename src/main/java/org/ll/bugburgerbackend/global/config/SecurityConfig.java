@@ -29,36 +29,20 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // 1. 허용 Origin 패턴 명확히 지정 (와일드카드 패턴 제거)
         configuration.setAllowedOriginPatterns(Arrays.asList(
                 "https://bugburger.whqtker.site",
                 "https://www.bugburger.whqtker.site",
                 "http://localhost:3000",
                 "http://localhost:5173"
         ));
-
-        // 2. 허용 헤더 구체화 (* 대신 명시적 설정)
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList(
-                "Authorization",
-                "Content-Type",
-                "Accept",
-                "Origin",
-                "X-Requested-With"
+                "Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"
         ));
-
-        // 3. 노출 헤더 추가
         configuration.setExposedHeaders(Arrays.asList(
-                "Authorization",
-                "Content-Type",
-                "refreshToken",
-                "accessToken"
+                "Authorization", "Content-Type", "refreshToken", "accessToken"
         ));
-
-        // 4. 크레덴셜 허용 (중요!)
         configuration.setAllowCredentials(true);
-
-        // 5. Preflight 캐시 시간 설정
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -67,27 +51,26 @@ public class SecurityConfig {
     }
 
 
+
+
     @Bean
     public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 허용
-                        .requestMatchers("/api/v1/members/**").permitAll() // 회원 관련 API 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 반드시 추가
+                        .requestMatchers("/api/v1/members/**").permitAll()
                         .anyRequest().authenticated()
-            )
-            .headers(
-                headers ->
-                    headers.frameOptions(
-                        HeadersConfigurer.FrameOptionsConfig::sameOrigin
-                    )
-            )
-            .formLogin(AbstractHttpConfigurer::disable)
-            .sessionManagement(sessionManagement ->
-                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                )
+                .headers(headers ->
+                        headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                )
+                .formLogin(AbstractHttpConfigurer::disable)
+                .sessionManagement(sessionManagement ->
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
