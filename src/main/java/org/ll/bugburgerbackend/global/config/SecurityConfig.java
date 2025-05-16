@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Configuration
@@ -31,14 +32,13 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:3000",
             "http://localhost:5173", 
-            "http://localhost:8080",
             "https://bugburger.whqtker.site",
-            "https://www.bugburger.whqtker.site",
-            "https://api.bugburger.whqtker.site"
+            "https://www.bugburger.whqtker.site"
         ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Authorization", "Content-Type", "refreshToken", "accessToken"));
+        configuration.setAllowCredentials(true); // 인증정보 포함 허용
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -49,14 +49,10 @@ public class SecurityConfig {
     public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Add this line to permit all OPTIONS requests
-                    .requestMatchers("/api/members/sign-in", "/api/members/sign-up", "/api/members/login", "/api/members/register").permitAll()
-                    .requestMatchers("/", "/api/members/", "/api/members/login", "/api/members/register").permitAll()
-                    .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                    .requestMatchers("/actuator/health", "/actuator/**", "/health").permitAll()
-                    .requestMatchers("/error").permitAll()
+                    .requestMatchers( "/**").permitAll() // Add this line to permit all OPTIONS requests
                     .anyRequest().authenticated()
             )
             .headers(
