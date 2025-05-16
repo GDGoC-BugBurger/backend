@@ -27,8 +27,13 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(LoginUser.class) &&
+        boolean supports = parameter.hasParameterAnnotation(LoginUser.class) &&
                 parameter.getParameterType().equals(Member.class);
+        log.trace("[LoginUserArgResolver] supportsParameter for {}.{}: {}",
+                parameter.getContainingClass().getSimpleName(),
+                parameter.getMethod().getName(),
+                supports);
+        return supports;
     }
 
     @Override
@@ -36,20 +41,32 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
         MethodParameter parameter, ModelAndViewContainer mavContainer,
         NativeWebRequest webRequest, WebDataBinderFactory binderFactory
     ) {
+        log.debug("[LoginUserArgResolver] Attempting to resolve @LoginUser for {}.{}",
+                parameter.getContainingClass().getSimpleName(),
+                parameter.getMethod().getName());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
-        if (authentication == null || !authentication.isAuthenticated()) {
-            log.debug("No authentication found in SecurityContext");
+        if (authentication == null) {
+            log.warn("[LoginUserArgResolver] No authentication found in SecurityContext.");
+            return null;
+        }
+        
+        log.debug("[LoginUserArgResolver] Authentication object found: {}", authentication);
+        if (!authentication.isAuthenticated()) {
+            log.warn("[LoginUserArgResolver] Authentication object is not authenticated: {}", authentication.getName());
             return null;
         }
 
         Object principal = authentication.getPrincipal();
+        log.debug("[LoginUserArgResolver] Principal object: {}, Type: {}", principal, principal != null ? principal.getClass().getName() : "null");
+
         if (principal instanceof Member) {
-            log.debug("Found authenticated member: {}", ((Member) principal).getUsername());
-            return principal;
+            Member member = (Member) principal;
+            log.info("[LoginUserArgResolver] Principal is an instance of Member. Resolved Member: {}", member.getUsername());
+            return member;
         }
 
-        log.debug("Principal is not a Member instance: {}", principal);
+        log.warn("[LoginUserArgResolver] Principal is not an instance of Member. Principal: {}", principal);
         return null;
     }
 }

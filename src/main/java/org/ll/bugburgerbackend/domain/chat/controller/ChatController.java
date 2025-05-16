@@ -44,20 +44,20 @@ public class ChatController {
 
     @PostMapping(value = "/speech-to-text", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> speechToText(@RequestParam("audio") MultipartFile audioFile, @LoginUser Member loginMember) throws IOException {
-//        if(loginMember == null) {
-//            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
-//        }
-//
-//        geminiPrompt = String.format(
-//                loginMember.getUsername(),
-//                loginMember.getBirth(),
-//                loginMember.getGender(),
-//                loginMember.getDementiaStage(),
-//                loginMember.getInterests(),
-//                loginMember.getBackground(),
-//                loginMember.getFamily(),
-//                loginMember.getRecentAnalysis()
-//        );
+        if(loginMember == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+
+        geminiPrompt = String.format(
+                loginMember.getUsername(),
+                loginMember.getBirth(),
+                loginMember.getGender(),
+                loginMember.getDementiaStage(),
+                loginMember.getInterests(),
+                loginMember.getBackground(),
+                loginMember.getFamily(),
+                loginMember.getRecentAnalysis()
+        );
 
         log.info("Received audio file for speech-to-text: size={} bytes", audioFile.getSize());
         byte[] audioBytes = audioFile.getBytes();
