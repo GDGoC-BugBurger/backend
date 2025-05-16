@@ -96,42 +96,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // OPTIONS 요청은 항상 건너뛰기
-        if (request.getMethod().equals("OPTIONS")) {
-            return true;
-        }
-
-        String path = request.getRequestURI();
-        
-        // API 도메인 엔드포인트도 허용
-        if (path.startsWith("/api/v1/members/sign-in") ||
-            path.startsWith("/api/v1/members/sign-up") ||
-            path.startsWith("/api/v1/members/sign-out") ||
-            path.startsWith("/api/v1/members/token/refresh")) {
-            log.debug("Auth endpoint detected: {}, skipping JWT filter", path);
-            return true;
-        }
-        
-        // Handle health check endpoints
-        if (path.equals("/health") || path.equals("/actuator/health") || path.startsWith("/actuator/")) {
-            log.debug("Health check path detected: {}, skipping JWT filter", path);
-            return true;
-        }
-        
-        // Handle all open endpoints with or without /api prefix
-        boolean shouldNotFilter = 
-               path.startsWith("/api/v1/members/sign-in") || path.startsWith("/members/sign-in") ||
-               path.startsWith("/api/v1/members/sign-up") || path.startsWith("/members/sign-up") ||
-               path.startsWith("/api/v1/members/login") || path.startsWith("/members/login") ||
-               path.startsWith("/api/v1/members/register") || path.startsWith("/members/register") ||
-               path.equals("/") ||
-               path.equals("/api/v1/members/") || path.equals("/members/") ||
-               path.startsWith("/css/") ||
-               path.startsWith("/js/") ||
-               path.startsWith("/images/") ||
-               path.equals("/error");
-
-        log.debug("Path: {}, shouldNotFilter: {}", path, shouldNotFilter);
-        return shouldNotFilter;
+        // OPTIONS 요청 필터링 제외
+        return request.getMethod().equals("OPTIONS")
+                || request.getRequestURI().startsWith("/api/v1/members/sign")
+                || request.getRequestURI().equals("/error");
     }
+
 }

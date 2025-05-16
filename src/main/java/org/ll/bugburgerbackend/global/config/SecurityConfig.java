@@ -29,27 +29,36 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // 허용된 출처 패턴 통합 및 명확화
+
+        // 1. 허용 Origin 패턴 명확히 지정 (와일드카드 패턴 제거)
         configuration.setAllowedOriginPatterns(Arrays.asList(
-            "http://localhost:3000",
-            "http://localhost:5173",
-            "http://localhost:*", // localhost의 모든 포트 허용
-            "https://bugburger.whqtker.site", // 요청을 보내는 프론트엔드 Origin
-            "https://www.bugburger.whqtker.site", // www가 붙은 프론트엔드 Origin
-            "https://api.bugburger.whqtker.site", // API 서버 자체 Origin (필요한 경우)
-            "https://*.bugburger.whqtker.site" // bugburger.whqtker.site의 모든 서브도메인 허용
-            // "https://*.whqtker.site" // 이전 설정에 있었으나, 필요에 따라 유지 또는 제거 (매우 광범위함)
+                "https://bugburger.whqtker.site",
+                "https://www.bugburger.whqtker.site",
+                "http://localhost:3000",
+                "http://localhost:5173"
         ));
-        
-        // 나머지 설정 유지
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+
+        // 2. 허용 헤더 구체화 (* 대신 명시적 설정)
         configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization", "Content-Type", "Accept", "Origin", 
-            "X-Requested-With", "Access-Control-Request-Method", 
-            "Access-Control-Request-Headers"
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With"
         ));
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+
+        // 3. 노출 헤더 추가
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "refreshToken",
+                "accessToken"
+        ));
+
+        // 4. 크레덴셜 허용 (중요!)
         configuration.setAllowCredentials(true);
+
+        // 5. Preflight 캐시 시간 설정
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -57,23 +66,16 @@ public class SecurityConfig {
         return source;
     }
 
+
     @Bean
     public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            // CORS 설정 적용
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .requestMatchers("/api/v1/members/sign-in", "/api/v1/members/sign-up", "/api/v1/members/sign-out", "/api/v1/members/token/refresh").permitAll()
-                    .requestMatchers("/actuator/health", "/health").permitAll()
-                    .requestMatchers("/").permitAll()
-                    .requestMatchers("/api/v1/members/").permitAll()
-                    .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                    .requestMatchers("/error").permitAll()
-                    .requestMatchers("/actuator/**").permitAll()
-                    .anyRequest().authenticated()
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 허용
+                        .requestMatchers("/api/v1/members/**").permitAll() // 회원 관련 API 허용
+                        .anyRequest().authenticated()
             )
             .headers(
                 headers ->
@@ -82,7 +84,7 @@ public class SecurityConfig {
                     )
             )
             .formLogin(AbstractHttpConfigurer::disable)
-            .sessionManagement(sessionManagement -> 
+            .sessionManagement(sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
