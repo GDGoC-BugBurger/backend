@@ -32,12 +32,11 @@ public class SecurityConfig {
             "http://localhost:3000",
             "http://localhost:5173", 
             "https://bugburger.whqtker.site",
-            "https://www.bugburger.whqtker.site",
-            "https://api.bugburger.whqtker.site"
+            "https://www.bugburger.whqtker.site"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "refreshToken", "accessToken"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

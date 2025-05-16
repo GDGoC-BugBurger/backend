@@ -99,26 +99,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        // Always skip OPTIONS requests
+        if (request.getMethod().equals("OPTIONS")) {
+            return true;
+        }
+
         String path = request.getRequestURI();
         
-        // 직접 health 엔드포인트를 확인하는 조건을 앞쪽에 배치
+        // Handle health check endpoints
         if (path.equals("/health") || path.equals("/actuator/health") || path.startsWith("/actuator/")) {
             log.debug("Health check path detected: {}, skipping JWT filter", path);
             return true;
         }
         
-        // 그 외 기존 조건들
-        boolean shouldNotFilter = path.startsWith("/api/members/sign-in") ||
-               path.startsWith("/api/members/sign-up") ||
-               path.startsWith("/api/members/login") ||
-               path.startsWith("/api/members/register") ||
+        // Handle all open endpoints with or without /api prefix
+        boolean shouldNotFilter = 
+               path.startsWith("/api/members/sign-in") || path.startsWith("/members/sign-in") ||
+               path.startsWith("/api/members/sign-up") || path.startsWith("/members/sign-up") ||
+               path.startsWith("/api/members/login") || path.startsWith("/members/login") ||
+               path.startsWith("/api/members/register") || path.startsWith("/members/register") ||
                path.equals("/") ||
-               path.equals("/api/members/") ||
+               path.equals("/api/members/") || path.equals("/members/") ||
                path.startsWith("/css/") ||
                path.startsWith("/js/") ||
                path.startsWith("/images/") ||
                path.equals("/error");
-    
+
         log.debug("Path: {}, shouldNotFilter: {}", path, shouldNotFilter);
         return shouldNotFilter;
     }
