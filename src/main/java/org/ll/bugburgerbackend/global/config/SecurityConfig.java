@@ -33,12 +33,14 @@ public class SecurityConfig {
             "http://localhost:3000",
             "http://localhost:5173", 
             "https://bugburger.whqtker.site",
-            "https://www.bugburger.whqtker.site"
+            "https://www.bugburger.whqtker.site",
+            "https://api.bugburger.whqtker.site"  // API 도메인 추가
         ));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(List.of("Authorization", "Content-Type", "refreshToken", "accessToken"));
-        configuration.setAllowCredentials(true); // 인증정보 포함 허용
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));  // OPTIONS 명시적으로 추가
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));  // 필요한 헤더들 명시적으로 추가
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "refreshToken", "accessToken"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);  // preflight 요청 캐시 시간 설정 (1시간)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -52,7 +54,9 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
-                    .requestMatchers( "/**").permitAll() // Add this line to permit all OPTIONS requests
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // OPTIONS 요청 명시적 허용
+                    .requestMatchers("/api/members/sign-in", "/api/members/sign-up", "/api/members/login", "/api/members/register").permitAll()
+                    .requestMatchers("/actuator/health", "/health").permitAll()
                     .anyRequest().authenticated()
             )
             .headers(
@@ -61,7 +65,6 @@ public class SecurityConfig {
                         HeadersConfigurer.FrameOptionsConfig::sameOrigin
                     )
             )
-            .csrf(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
             .sessionManagement((sessionManagement) -> sessionManagement
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
