@@ -96,12 +96,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // Always skip OPTIONS requests
+        // OPTIONS 요청은 항상 건너뛰기
         if (request.getMethod().equals("OPTIONS")) {
             return true;
         }
 
         String path = request.getRequestURI();
+        
+        // API 도메인 엔드포인트도 허용
+        if (path.startsWith("/api/members/sign-in") || 
+            path.startsWith("/api/members/sign-up") || 
+            path.startsWith("/api/members/sign-out") || 
+            path.startsWith("/api/members/token/refresh")) {
+            log.debug("Auth endpoint detected: {}, skipping JWT filter", path);
+            return true;
+        }
         
         // Handle health check endpoints
         if (path.equals("/health") || path.equals("/actuator/health") || path.startsWith("/actuator/")) {

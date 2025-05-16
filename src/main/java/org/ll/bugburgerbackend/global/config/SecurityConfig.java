@@ -28,15 +28,23 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Replace setAllowedOrigins with setAllowedOriginPatterns
+        // 허용된 출처 패턴 업데이트
         configuration.setAllowedOriginPatterns(Arrays.asList(
             "http://localhost:3000",
             "http://localhost:5173", 
             "https://bugburger.whqtker.site",
-            "https://www.bugburger.whqtker.site"
+            "https://www.bugburger.whqtker.site",
+            "https://api.bugburger.whqtker.site"  // API 도메인 추가
         ));
         
-        // Make sure all necessary methods and headers are included
+        // 와일드카드 패턴 추가하여 더 유연하게 처리
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:*",
+            "https://*.bugburger.whqtker.site",
+            "https://*.whqtker.site"
+        ));
+        
+        // 나머지 설정 유지
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList(
             "Authorization", "Content-Type", "Accept", "Origin", 
@@ -55,6 +63,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain baseSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+            // CORS 설정 적용
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorizeRequests ->
