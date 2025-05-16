@@ -66,10 +66,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .requestMatchers("/api/members/sign-in", "/api/members/sign-up", "/api/members/sign-out", "/api/members/token/refresh").permitAll()
+                    .requestMatchers("/api/v1/members/sign-in", "/api/v1/members/sign-up", "/api/v1/members/sign-out", "/api/v1/members/token/refresh").permitAll()
                     .requestMatchers("/actuator/health", "/health").permitAll()
                     .requestMatchers("/").permitAll()
-                    .requestMatchers("/api/members/").permitAll()
+                    .requestMatchers("/api/v1/members/").permitAll()
                     .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                     .requestMatchers("/error").permitAll()
                     .requestMatchers("/actuator/**").permitAll()

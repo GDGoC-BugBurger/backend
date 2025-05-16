@@ -104,10 +104,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         
         // API 도메인 엔드포인트도 허용
-        if (path.startsWith("/api/members/sign-in") || 
-            path.startsWith("/api/members/sign-up") || 
-            path.startsWith("/api/members/sign-out") || 
-            path.startsWith("/api/members/token/refresh")) {
+        if (path.startsWith("/api/v1/members/sign-in") ||
+            path.startsWith("/api/v1/members/sign-up") ||
+            path.startsWith("/api/v1/members/sign-out") ||
+            path.startsWith("/api/v1/members/token/refresh")) {
             log.debug("Auth endpoint detected: {}, skipping JWT filter", path);
             return true;
         }
@@ -120,12 +120,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         // Handle all open endpoints with or without /api prefix
         boolean shouldNotFilter = 
-               path.startsWith("/api/members/sign-in") || path.startsWith("/members/sign-in") ||
-               path.startsWith("/api/members/sign-up") || path.startsWith("/members/sign-up") ||
-               path.startsWith("/api/members/login") || path.startsWith("/members/login") ||
-               path.startsWith("/api/members/register") || path.startsWith("/members/register") ||
+               path.startsWith("/api/v1/members/sign-in") || path.startsWith("/members/sign-in") ||
+               path.startsWith("/api/v1/members/sign-up") || path.startsWith("/members/sign-up") ||
+               path.startsWith("/api/v1/members/login") || path.startsWith("/members/login") ||
+               path.startsWith("/api/v1/members/register") || path.startsWith("/members/register") ||
                path.equals("/") ||
-               path.equals("/api/members/") || path.equals("/members/") ||
+               path.equals("/api/v1/members/") || path.equals("/members/") ||
                path.startsWith("/css/") ||
                path.startsWith("/js/") ||
                path.startsWith("/images/") ||
