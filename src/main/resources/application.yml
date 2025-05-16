@@ -23,8 +23,9 @@ spring:
 
 logging:
   level:
-    org.ll.bugburgerbackend.global.filter: DEBUG
-    org.springframework.security: DEBUG
+    org:
+      springframework:
+        security: DEBUG
 
 webrtc:
   ice-servers:
