@@ -17,7 +17,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Configuration
@@ -34,13 +33,13 @@ public class SecurityConfig {
             "http://localhost:5173", 
             "https://bugburger.whqtker.site",
             "https://www.bugburger.whqtker.site",
-            "https://api.bugburger.whqtker.site"  // API 도메인 추가
+            "https://api.bugburger.whqtker.site"
         ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));  // OPTIONS 명시적으로 추가
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));  // 필요한 헤더들 명시적으로 추가
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "refreshToken", "accessToken"));
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);  // preflight 요청 캐시 시간 설정 (1시간)
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -54,9 +53,14 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // OPTIONS 요청 명시적 허용
-                    .requestMatchers("/api/members/sign-in", "/api/members/sign-up", "/api/members/login", "/api/members/register").permitAll()
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers("/api/members/sign-in", "/api/members/sign-up", "/api/members/sign-out", "/api/members/token/refresh").permitAll()
                     .requestMatchers("/actuator/health", "/health").permitAll()
+                    .requestMatchers("/").permitAll()
+                    .requestMatchers("/api/members/").permitAll()
+                    .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                    .requestMatchers("/error").permitAll()
+                    .requestMatchers("/actuator/**").permitAll()
                     .anyRequest().authenticated()
             )
             .headers(
@@ -66,8 +70,8 @@ public class SecurityConfig {
                     )
             )
             .formLogin(AbstractHttpConfigurer::disable)
-            .sessionManagement((sessionManagement) -> sessionManagement
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionManagement(sessionManagement -> 
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
