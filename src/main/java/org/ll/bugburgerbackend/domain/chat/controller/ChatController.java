@@ -25,7 +25,7 @@ import java.util.Map;
 // TODO: Service로 서비스 로직 분리할 것
 @Slf4j
 @Controller
-@RequestMapping("/api/chats")
+@RequestMapping("/api/v1/chats")
 @RequiredArgsConstructor
 public class ChatController {
 
