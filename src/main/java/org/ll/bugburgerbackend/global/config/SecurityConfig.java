@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ll.bugburgerbackend.global.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -50,10 +51,11 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Add this line to permit all OPTIONS requests
                     .requestMatchers("/api/members/sign-in", "/api/members/sign-up", "/api/members/login", "/api/members/register").permitAll()
                     .requestMatchers("/", "/api/members/", "/api/members/login", "/api/members/register").permitAll()
                     .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                    .requestMatchers("/actuator/health", "/actuator/**", "/health").permitAll() // 이 줄 추가
+                    .requestMatchers("/actuator/health", "/actuator/**", "/health").permitAll()
                     .requestMatchers("/error").permitAll()
                     .anyRequest().authenticated()
             )
